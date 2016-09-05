@@ -2,3 +2,7 @@
 /include
 /lib
 pyvenv.cfg
+.idea/
+pip-selfcheck.json
+data/*
+__pycache__/

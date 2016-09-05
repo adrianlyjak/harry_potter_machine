@@ -1,5 +1,6 @@
-from gensim.models.word2vec import Word2Vec
 from nltk import tokenize
+from gensim.models.word2vec import Word2Vec
+import multiprocessing
 
 
 def file_to_sentence_tokens(filename: str):
@@ -7,21 +8,11 @@ def file_to_sentence_tokens(filename: str):
     return (tokenize.word_tokenize(sent) for sents in two_d_sents for sent in sents)
 
 
-def run():
-    fname = 'harry-potter.txt'
-
+def train(inputfile, outputfile):
     def generator():
-        return file_to_sentence_tokens('train/' + fname)
+        return file_to_sentence_tokens(inputfile)
 
-    model = Word2Vec(min_count=1, workers=16)
+    model = Word2Vec(min_count=1, workers=multiprocessing.cpu_count())
     model.build_vocab(sentences=generator())
     model.train(sentences=generator())
-    model.save_word2vec_format('save/' + fname)
-
-
-if __name__ == '__main__':
-    run()
-
-
-
-
+    model.save_word2vec_format(outputfile)
