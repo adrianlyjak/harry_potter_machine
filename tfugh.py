@@ -1,19 +1,13 @@
 import itertools
 import random
 import tensorflow as tf
+import os
 from argparse import ArgumentParser
 
 # maybe saver
-saver = None
 parse = ArgumentParser()
 parse.add_argument('-s', '--save')
 args = parse.parse_args()
-
-if args.save is not None:
-    saver = tf.train.Saver()
-    save_file = 'data/tfugh/' + args.save + '.ckpt'
-    print('saving to ' + save_file)
-
 
 
 # data
@@ -137,10 +131,16 @@ mk_batch, reconstitute = batch_generator(algo, n_input, input_value_range)
 # Launch the graph
 init = tf.initialize_all_variables()
 
+# Saver
+saver = None
+if args.save is not None:
+    saver = tf.train.Saver()
+    save_file = args.save + '.ckpt'
+    print('saving to ' + save_file)
 
 # Run
 with tf.Session() as sess:
-    if saver is not None:
+    if saver is not None and os.path.isfile(save_file):
         saver.restore(sess, save_file)
     sess.run(init)
 
