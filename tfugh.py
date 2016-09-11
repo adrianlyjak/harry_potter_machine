@@ -1,19 +1,22 @@
-import tensorflow as tf
-import random
-import math
 import itertools
-from math import sqrt
+import random
+import tensorflow as tf
+from argparse import ArgumentParser
 
+# maybe saver
+saver = None
+parse = ArgumentParser()
+parse.add_argument('-s', '--save')
+args = parse.parse_args()
 
-
-
-
-
+if args.save is not None:
+    saver = tf.train.Saver()
+    save_file = 'data/tfugh/' + args.save + '.ckpt'
+    print('saving to ' + save_file)
 
 
 
 # data
-
 def times(num):
     def gen():
         i = -1
@@ -137,6 +140,8 @@ init = tf.initialize_all_variables()
 
 # Run
 with tf.Session() as sess:
+    if saver is not None:
+        saver.restore(sess, save_file)
     sess.run(init)
 
     # Training cycle
@@ -155,6 +160,8 @@ with tf.Session() as sess:
         if epoch % display_step == 0:
             print("Epoch:", '%04d' % (epoch + 1), "cost=", avg_cost)
             if epoch % (display_step * 5) == 0:
+                if saver is not None:
+                    saver.save(sess, save_file)
                 n_y = tf.identity(y)
                 test_x, test_y = mk_batch(1)
                 print("for input", reconstitute(test_x))
