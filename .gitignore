@@ -6,3 +6,6 @@ pyvenv.cfg
 pip-selfcheck.json
 data/*
 __pycache__/
+checkpoint
+*.ckpt
+*.ckpt.meta
