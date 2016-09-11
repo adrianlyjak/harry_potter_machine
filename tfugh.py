@@ -6,7 +6,10 @@ from argparse import ArgumentParser
 
 # maybe saver
 parse = ArgumentParser()
-parse.add_argument('-s', '--save')
+parse.add_argument('-m', '--modelname')
+parse.add_argument('--norestore', action='store_true', default=False)
+parse.add_argument('--nosave', action='store_true', default=False)
+parse.add_argument('--notrain', action='store_true', default=False)
 args = parse.parse_args()
 
 
@@ -119,7 +122,7 @@ learning_rate = 0.0001
 training_epochs = 100000
 batch_per_epoch = 1000
 batch_size = 1000
-display_step = 5
+display_step = 1
 
 
 # Define loss and optimizer
@@ -133,21 +136,32 @@ init = tf.initialize_all_variables()
 
 # Saver
 saver = None
-if args.save is not None:
+if args.modelname is not None:
     saver = tf.train.Saver()
-    save_file = args.save + '.ckpt'
-    print('saving to ' + save_file)
+    save_file = args.modelname + '.ckpt'
+    print('use filepath ' + save_file + ' for saves')
 
 # Run
 with tf.Session() as sess:
     if saver is not None and os.path.isfile(save_file):
+        print('restoring save file')
         saver.restore(sess, save_file)
     sess.run(init)
 
+    def sample():
+        n_y = tf.identity(y)
+        test_x, test_y = mk_batch(1)
+        print("for input", reconstitute(test_x))
+        print("and ouput", reconstitute(test_y))
+        print("got", reconstitute(sess.run(pred, {x: test_x, y: test_y})))
+
     # Training cycle
-    for epoch in range(training_epochs):
+    if args.notrain:
+        sample()
+    else:
+      for epoch in range(training_epochs):
         avg_cost = 0.0
-        # Loop over all batches
+       	# Loop over all batches
         for batch in range(batch_per_epoch):
             batch_x, batch_y = mk_batch(batch_size)
             # Run optimization op (backprop) and cost op (to get loss value)
@@ -160,13 +174,10 @@ with tf.Session() as sess:
         if epoch % display_step == 0:
             print("Epoch:", '%04d' % (epoch + 1), "cost=", avg_cost)
             if epoch % (display_step * 5) == 0:
-                if saver is not None:
+                if saver is not None and not args.nosave:
+                    print('saving')
                     saver.save(sess, save_file)
-                n_y = tf.identity(y)
-                test_x, test_y = mk_batch(1)
-                print("for input", reconstitute(test_x))
-                print("and ouput", reconstitute(test_y))
-                print("got", reconstitute(sess.run(pred, {x: test_x, y: test_y})))
+                sample()
 
     print("Optimization Finished!")
 
