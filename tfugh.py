@@ -67,9 +67,9 @@ def batch_generator(generators, training_seq_length, full_seq_size):
 
 
 # Network Parameters
-n_hidden_1 = 5
-n_hidden_2 = 5
-n_input = 3
+n_hidden_1 = 4
+n_hidden_2 = 4
+n_input = 4
 n_output = 1
 
 x = tf.placeholder("float", [None, n_input], name='x')
@@ -120,10 +120,10 @@ input_value_range = 2000
 # Training Parameters
 learning_rate = 0.0001
 training_epochs = 100000
-batch_per_epoch = 1000
+batch_per_epoch = 100
 batch_size = 1000
-display_step = 1
-
+display_step = 3
+save_step = 5
 
 # Define loss and optimizer
 cost = tf.sqrt(tf.reduce_mean(tf.square(tf.sub(y, pred))))
@@ -143,41 +143,41 @@ if args.modelname is not None:
 
 # Run
 with tf.Session() as sess:
-    if saver is not None and os.path.isfile(save_file):
-        print('restoring save file')
-        saver.restore(sess, save_file)
     sess.run(init)
 
+    if saver is not None and not args.norestore and os.path.isfile(save_file):
+        print('restoring save file')
+        saver.restore(sess, save_file)
+
     def sample():
-        n_y = tf.identity(y)
         test_x, test_y = mk_batch(1)
         print("for input", reconstitute(test_x))
         print("and ouput", reconstitute(test_y))
         print("got", reconstitute(sess.run(pred, {x: test_x, y: test_y})))
 
+
     # Training cycle
     if args.notrain:
         sample()
     else:
-      for epoch in range(training_epochs):
-        avg_cost = 0.0
-       	# Loop over all batches
-        for batch in range(batch_per_epoch):
-            batch_x, batch_y = mk_batch(batch_size)
-            # Run optimization op (backprop) and cost op (to get loss value)
-            r, c = sess.run([optimizer, cost], feed_dict={x: batch_x,
-                                                          y: batch_y})
-            # Compute average loss
-            avg_cost += c / batch_per_epoch
+        for epoch in range(training_epochs):
+            avg_cost = 0.0
+            # Loop over all batches
+            for batch in range(batch_per_epoch):
+                batch_x, batch_y = mk_batch(batch_size)
+                # Run optimization op (backprop) and cost op (to get loss value)
+                r, c = sess.run([optimizer, cost], feed_dict={x: batch_x,
+                                                              y: batch_y})
+                # Compute average loss
+                avg_cost += c / batch_per_epoch
 
-
-        if epoch % display_step == 0:
-            print("Epoch:", '%04d' % (epoch + 1), "cost=", avg_cost)
-            if epoch % (display_step * 5) == 0:
-                if saver is not None and not args.nosave:
-                    print('saving')
-                    saver.save(sess, save_file)
-                sample()
+            if epoch % display_step == 0:
+                print("Epoch:", '%04d' % (epoch + 1), "cost=", avg_cost)
+                if epoch % (display_step * save_step) == 0:
+                    if saver is not None and not args.nosave:
+                        print('saving')
+                        saver.save(sess, save_file)
+                    sample()
 
     print("Optimization Finished!")
 
