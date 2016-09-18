@@ -5,7 +5,7 @@ import write_normalized_txt
 import write_word2vec
 import word2vec_api
 import train_lstm
-from reader import split
+import reader
 
 p = ArgumentParser(description='Harry Potter Machine - Generates Text from Given Books')
 p.add_argument('-b', '--book', default='harry-potter')
@@ -64,14 +64,14 @@ if __name__ == '__main__':
         missing_some = len([filename for filename in data_sets.keys() if os.path.isfile(filename)]) < len(data_sets)
         if args.nocache or missing_some:
             print('splitting data sets ...')
-            split('raw.txt', data_sets)
+            reader.split('raw.txt', data_sets)
             print('... data sets split')
 
     word2vec_model = word2vec_api.from_model_at(args.vocab if args.vocab is not None else 'vocab.txt')
 
     if not args.sampleonly:
         print('starting training ... ')
-        train_lstm.train('raw.txt', word2vec_model)
+        train_lstm.train(word2vec_model, reader.Text('train.txt', word2vec_model))
         # train
         print('... training done? ')
 
