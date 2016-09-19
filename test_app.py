@@ -31,7 +31,7 @@ class AppTest(ut.TestCase):
 
     def test_vec_to_word(self):
         response = self.postJson('/toWord/one', {
-            'data': [0.2, 0.75]
+            'data': [0.2, 0.2]
         })
         self.assertEqual('word', response['result'])
 

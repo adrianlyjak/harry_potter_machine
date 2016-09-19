@@ -70,6 +70,7 @@ if __name__ == '__main__':
     word2vec_model = word2vec_api.from_model_at(args.vocab if args.vocab is not None else 'vocab.txt')
 
     if not args.sampleonly:
+        print(word2vec_model.vector_to_word(word2vec_model.word_to_vector('The')))
         print('starting training ... ')
         train_lstm.train(word2vec_model, reader.Text('train.txt', word2vec_model))
         # train

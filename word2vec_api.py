@@ -26,7 +26,7 @@ class W2V(object):
             raise W2VException('unknown_word', 'unknown word: "' + word + '"')
 
     def vector_to_word(self, vector):
-        words = self.model.similar_by_vector(vector, topn=1)
+        words = self.model.similar_by_vector(np.array(vector), topn=1)
         return words[0][0]
 
     def vectors_to_words(self, vectors):
