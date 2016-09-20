@@ -68,7 +68,7 @@ def train(word2vec: W2V, text: Text):
 
     with tf.Session() as sess:
         tf.initialize_all_variables().run()
-        for i in range(100):
+        for i in range(30000):
             x, y = text.batch(batch_size, seq_length)
             predication, cost, final_state = train_batch(sess, x, y)
             print(cost)

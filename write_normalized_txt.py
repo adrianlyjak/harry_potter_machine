@@ -6,7 +6,7 @@ import codecs
 def writefile(sourcefile, destination):
     if sourcefile is None or not os.path.exists(sourcefile):
         raise FileNotFoundError(
-            'no raw.txt already created, and no source text specified or source file/folder not found')
+            'no raw.txt already created, and ' + ('no source text specified' if sourcefile is None else 'sourcfile does not exist'))
 
     sourcefiles = [sourcefile]
     if os.path.isdir(sourcefile):
